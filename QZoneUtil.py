@@ -1,6 +1,9 @@
+import json
+
 import requests
 import re
 import base64
+import os
 
 def getGTK(skey):
     hash = 5381
@@ -33,12 +36,16 @@ class QZoneUtil:
     __session = requests.session()
     __gtk = ''
 
-    def __init__(self, uin):
+    def __init__(self, uin, proxy=''):
         headers = {
-            'content-type': 'application/json',
+            'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
         }
         self.__session.headers = headers
+        # self.__session.proxies = {
+        #     'http': 'socks5://' + proxy,
+        #     'https': 'socks5://' + proxy
+        # }
         self.__uin = uin
 
     def login(self, client_key):
@@ -54,6 +61,8 @@ class QZoneUtil:
         if not self.__qzone_token:
             return False
         self.__qzone_token = self.__qzone_token.group(1)
+        self.__qzone_token = self.__qzone_token.strip('"')
+
         skey = self.__session.cookies['p_skey']
         self.__gtk = getGTK(skey)
         return True
@@ -61,6 +70,13 @@ class QZoneUtil:
     def post_shuoshuo(self, con, pic_list):
         reqURL = 'https://user.qzone.qq.com/proxy/domain/taotao.qzone.qq.com/cgi-bin/emotion_cgi_publish_v6??g_tk={0}&qzonetoken={1}'.format(
             self.__gtk, self.__qzone_token)
+
+        richval = ''
+
+        for i in pic_list:
+            richval = richval + i + ' '
+
+
         data = (
             ('syn_tweet_verson', '1'),
             ('paramstr', '1'),
@@ -77,10 +93,62 @@ class QZoneUtil:
             ('hostuin', self.__uin),
             ('code_version', '1'),
             ('format', 'fs'),
-            ('qzreferrer', 'https://user.qzone.qq.com/6645815'),
+            ('qzreferrer', 'https://user.qzone.qq.com/' + self.__uin),
         )
 
         rsp = self.__session.post(reqURL, data=data)
         print(rsp)
 
+    def upload_image(self, path):
+        file = open(path, 'rb')
+        file_content = file.read()
+        file.close()
+        base64_pic = base64.urlsafe_b64encode(file_content)
 
+
+        reqURL = 'https://up.qzone.qq.com/cgi-bin/upload/cgi_upload_image?g_tk={0}&qzonetoken={1}&g_tk={2}'.format(
+            self.__gtk, self.__qzone_token, self.__gtk)
+        data = (
+            ('filename', 'filename'),
+            ('uin', self.__uin),
+            ('skey', self.__session.cookies['skey']),
+            ('zzpaneluin', self.__uin),
+            ('zzpanelkey', ''),
+            ('p_uin', self.__uin),
+            ('p_skey', self.__session.cookies['p_skey']),
+            ('qzonetoken', self.__qzone_token),
+            ('uploadtype', '1'),
+            ('albumtype', '7'),
+            ('exttype', '0'),
+            ('refer', 'shuoshuo'),
+            ('output_type', 'json'),
+            ('charset', 'utf-8'),
+            ('output_charset', 'utf-8'),
+            ('upload_hd', '1'),
+            ('hd_width', '2048'),
+            ('hd_height', '10000'),
+            ('hd_quality', '96'),
+            ('backUrls', 'http://upbak.photo.qzone.qq.com/cgi-bin/upload/cgi_upload_image,http://119.147.64.75/cgi-bin/upload/cgi_upload_image'),
+            ('url', 'https://up.qzone.qq.com/cgi-bin/upload/cgi_upload_image?g_tk=' + str(self.__gtk)),
+            ('base64', '1'),
+            ('jsonhtml_callback', 'callback'),
+            ('picfile', base64_pic),
+            ('qzreferrer', 'https://user.qzone.qq.com/' + self.__uin),
+        )
+
+        rsp = self.__session.post(reqURL, data=data)
+
+        if rsp.content == '':
+            return ''
+
+        result = rsp.content[10: -3]
+        result = json.loads(result)
+
+        if result['ret'] != 0:
+            return ''
+
+        img = ',' + result['data']['albumid'] + ',' + result['data']['lloc'] + ',' + result['data']['lloc'] + ',' + str(result['data']['type'])
+        img = img + ',' + str(result['data']['height']) + ',' + str(result['data']['width'])
+        img = img + ',,' + str(result['data']['height']) + ',' + str(result['data']['width'])
+
+        return img
