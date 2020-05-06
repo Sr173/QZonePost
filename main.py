@@ -7,7 +7,7 @@ import os.path
 import requests
 
 def get_client_key(qq, pwd, proxy=''):
-    proto = Proto.Util("http://localhost:808", proxy)
+    proto = Proto.Util("http://119.23.8.232:808", proxy)
     result = proto.login(qq, pwd)
 
     if result['status'] != 0:
@@ -30,17 +30,22 @@ if os.path.isfile("client.key"):
     f.close()
 
 for line in fileinput.input("qq.txt"):
-    try:
+    #try:
         line = line.strip('\n')
         line = line.strip('\r')
         data = str(line).split('----')
         if data.__len__() == 2:
-            proxy = requests.get(
-               'http://ip.11jsq.com/index.php/api/entry?method=proxyServer.generate_api_url&packid=0&fa=0&fetch_key'
-               '=&groupid=0&qty=1&time=1&pro=&city=&port=2&format=txt&ss=3&css=&dt=1&specialTxt=3&specialJson'
-               '=&usertype=14')
+            # proxy = requests.get(
+            #    'http://ip.11jsq.com/index.php/api/entry?method=proxyServer.generate_api_url&packid=0&fa=0&fetch_key'
+            #    '=&groupid=0&qty=1&time=1&pro=&city=&port=2&format=txt&ss=3&css=&dt=1&specialTxt=3&specialJson'
+            #    '=&usertype=14')
+
+            proxy = requests.get('http://http.tiqu.alicdns.com/getip3?num=1&type=1&pro=&city=0&yys=0&port=1&pack=84816&ts=0&ys=0&cs=0&lb=4&sb=0&pb=4&mr=1&regions=')
+
             time.sleep(1)
             proxy_text = proxy.text.strip('\n')
+
+            proxy_text = ''
 
             is_new = False
 
@@ -73,11 +78,12 @@ for line in fileinput.input("qq.txt"):
 
             img = qzone.upload_image("./vc.png")
 
-            print(img)
-            qzone.post_shuoshuo('qm你好，可以看一下', [img, img])
+            #print(img)
+            qzone.post_shuoshuo('qm ssssss', [img])
         else:
             print("格式错误")
-    except Exception as e:
-        print("发生了异常", e)
+    # except Exception as e:
+    #     print("发生了异常", e)
+    #     continue
 
 

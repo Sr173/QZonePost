@@ -2,6 +2,7 @@ import base64
 import json
 from io import BytesIO
 import time
+import random
 
 import requests
 
@@ -9,11 +10,14 @@ class Util:
     __host = ''
     __session_id = ''
 
+
+
     def __init__(self, host='http://localhost:808', proxy=''):
         self.__host = host
         data = {
+
             'device': {
-                'AndroidId': 'c0e66cdeb42a71e7',
+                'AndroidId': 'c0e66cdeb42a7' + str(random.randint(100, 999)),
                 'Mac': '02:00:00:00:00:00',
                 'OsType': 'android',
                 'OsVersion': '7.1.2',

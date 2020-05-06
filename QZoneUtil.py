@@ -42,18 +42,21 @@ class QZoneUtil:
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
         }
         self.__session.headers = headers
-        # self.__session.proxies = {
-        #     'http': 'socks5://' + proxy,
-        #     'https': 'socks5://' + proxy
-        # }
+
+        if proxy != '':
+            self.__session.proxies = {
+                'http': 'socks5://' + proxy,
+                'https': 'socks5://' + proxy
+            }
+
         self.__uin = uin
 
     def login(self, client_key):
         self.__session.get(
             "https://ui.ptlogin2.qq.com/cgi-bin/login?pt_hide_ad=1&style=9&appid=549000929&pt_no_auth=1&pt_wxtest=1&daid=5&s_url=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex")
-        self.__session.cookies["pgv_pvi"] = "4891808768"
-        self.__session.cookies["pgv_si"] = "s3110396928"
-        login_url = "https://ssl.ptlogin2.qq.com/jump?u1=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex&pt_report=1&daid=5&style=9&pt_ua=30F0FC03C9EEBCDCF868871DF5F9648D&pt_browser=MQQBrowser&keyindex=19&clientuin=" + self.__uin + "&clientkey=" + client_key
+        self.__session.cookies["pgv_pvi"] = "4891808758"
+        self.__session.cookies["pgv_si"] = "s3110396918"
+        login_url = "https://ssl.ptlogin2.qq.com/jump?u1=https%3A%2F%2Fh5.qzone.qq.com%2Fmqzone%2Findex&pt_report=1&daid=5&style=9&pt_ua=30F0FD03C9EEBCDCF868871DF5F9648D&pt_browser=MQQBrowser&keyindex=19&clientuin=" + self.__uin + "&clientkey=" + client_key
         login_result = self.__session.get(login_url)
         home_page = self.__session.get("https://h5.qzone.qq.com/mqzone/index")
         self.__qzone_token = re.search(r'window\.g_qzonetoken = \(function\(\)\{ try\{return (.*?);\} catch\(e\)',
@@ -82,7 +85,7 @@ class QZoneUtil:
             ('paramstr', '1'),
             ('pic_template', ''),
             ('richtype', '1' if len(pic_list) > 0 else ''),
-            ('richval', pic_list[0]),
+            ('richval', ''),
             ('special_url', ''),
             ('subrichtype', ''),
             ('who', '1'),
