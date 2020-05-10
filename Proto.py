@@ -17,16 +17,16 @@ class Util:
         data = {
 
             'device': {
-                'AndroidId': 'c0e66cdeb42a7' + str(random.randint(100, 999)),
+                'AndroidId': 'c0e662cec32a7' + str(random.randint(100, 999)),
                 'Mac': '02:00:00:00:00:00',
                 'OsType': 'android',
                 'OsVersion': '7.1.2',
                 'SimName': 'China Mobile GSM',
                 'MobileBrand': 'vivo',
-                'MobileModel': 'x6',
+                'MobileModel': 'x5',
                 'WifiName': 'ILoveYou',
                 'WifiSSID': '+T+kZS5QKCu23yGqWj1u+g==',
-                'IMEI': '865166022738994',
+                'IMEI': '865166923738994',
                 'IMSI': ''
             },
 
@@ -40,7 +40,7 @@ class Util:
         }
 
         if proxy != '':
-            data['Sk5'] = {
+            data['Socks5'] = {
                 'Host': proxy
             }
 
@@ -69,7 +69,7 @@ class Util:
             print("正在输入验证码")
             pic = base64.b64decode(login_result['data']['VCode'])
             io = BytesIO(pic)
-            v_code = requests.post("http://119.23.8.232/v1/detect", data=io)
+            v_code = requests.post("http://118.89.70.160/v1/detect", data=io)
             login_result = requests.post(self.__host + "/v1/VCode?id=" + str(self.__session_id), data=json.dumps({
                 'VCode': v_code.text
             })).text
